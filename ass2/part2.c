@@ -47,8 +47,10 @@ int main(int argc, const char* argv[]) {
         } 
     } 
 
-    wait(NULL);
-
+    for (int j = 0; j < child_processes_count; ++j) { 
+        wait(NULL);
+    }
+    printf("%d\n", i+1);
     write_message(argv[i+1], atoi(argv[argc - 1]));
 
     remove("lockfile.lock");
