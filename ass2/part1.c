@@ -17,8 +17,6 @@ int main(int argc, const char* argv[]) {
         exit(-1);
     }
 
-    int chrsr, chrsw;
-
     pid_t pid1 = fork(), pid2;
     if (pid1 < 0) {
         perror("fork failed");
