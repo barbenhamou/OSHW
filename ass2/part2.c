@@ -8,7 +8,7 @@ int i = 0;
 
 void write_message(const char *message, int count) {
     for (int i = 0; i < count; i++) {
-        printf("%s", message);
+        printf("%s\n", message);
         usleep((rand() % 100) * 1000); // Random delay between 0 and 99 milliseconds
     }
 }
@@ -50,7 +50,6 @@ int main(int argc, const char* argv[]) {
     for (int j = 0; j < child_processes_count; ++j) { 
         wait(NULL);
     }
-    printf("%d\n", i+1);
     write_message(argv[i+1], atoi(argv[argc - 1]));
 
     remove("lockfile.lock");

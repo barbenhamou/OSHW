@@ -9,8 +9,5 @@ then
 elif [ $1 -eq 2 ]
 then
     gcc -g -w -o part2 part2.c
-    ./part2 "First message
-" "Second message
-" "Third message
-" 3 > output2.txt
+    ./part2 "First message" "Second message" "Third message" 3 > output2.txt
 fi
