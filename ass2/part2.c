@@ -36,7 +36,7 @@ int main(int argc, const char* argv[]) {
     int child_processes_count = argc - 3;
     pid_t pid;
 
-    for (; i < child_processes_count; ++i) {
+    for (; i <= child_processes_count; ++i) {
         pid = fork();
         if (pid == 0) {
             srand(getpid());
@@ -50,7 +50,6 @@ int main(int argc, const char* argv[]) {
     for (int j = 0; j < child_processes_count; ++j) { 
         wait(NULL);
     }
-    write_message(argv[i+1], atoi(argv[argc - 1]));
 
     remove("lockfile.lock");
     return 0;

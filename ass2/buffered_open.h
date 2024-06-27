@@ -3,6 +3,8 @@
 
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
 // Define a new flag that doesn't collide with existing flags
 #define O_PREAPPEND 0x40000000
@@ -27,6 +29,8 @@ typedef struct {
 
     int preappend;              // Flag to remember if the O_PREAPPEND flag was used, indicating special handling for writes
 } buffered_file_t;
+
+typedef enum last_op {WRITE, READ, FIRST} last_op;
 
 // Function to wrap the original open function
 buffered_file_t *buffered_open(const char *pathname, int flags, ...);
