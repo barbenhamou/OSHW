@@ -17,4 +17,10 @@ elif [ $1 -eq 3 ]
 then
     gcc -g -w -o a buffered_open.c
     ./a
+
+elif [ $1 -eq 4 ]
+then
+    gcc -g -w -o main_program copytree.c part4.c
+    ./main_program -l -p source_directory dest_directory
 fi
+
