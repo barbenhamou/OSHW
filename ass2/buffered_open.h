@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
 
 // Define a new flag that doesn't collide with existing flags
 #define O_PREAPPEND 0x40000000

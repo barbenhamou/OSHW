@@ -12,4 +12,9 @@ then
     gcc -g -w -o part2 part2.c
     ./part2 "First message" "Second message" "Third message" 3 > output2.txt
     rm part2
+
+elif [ $1 -eq 3 ]
+then
+    gcc -g -w -o a buffered_open.c
+    ./a
 fi
