@@ -25,11 +25,17 @@ int main(int argc, const char* argv[]) {
 
     if (pid1 == 0) {
         for (int i = 0; i < atoi(argv[4]); ++i) {
-            write(fdout, argv[2], strlen(argv[2]));
+            if (write(fdout, argv[2], strlen(argv[2])) == -1) {
+                perror("write failed");
+                exit(-1);
+            }
         }
     } else {
 
-        waitpid(pid1, &status, 0);
+        if (waitpid(pid1, &status, 0) == -1) {
+            perror("waitpid failed");
+            exit(-1);
+        }
 
         pid2 = fork();
 
@@ -41,12 +47,21 @@ int main(int argc, const char* argv[]) {
         if (pid2 == 0) {
             //child2
             for (int i = 0; i < atoi(argv[4]); ++i) {
-                write(fdout, argv[3], strlen(argv[3]));
+                if (write(fdout, argv[3], strlen(argv[3])) == -1) {
+                    perror("write failed");
+                    exit(-1);
+                }
             }
         } else {
-            waitpid(pid2, &status, 0);
+            if (waitpid(pid2, &status, 0) == -1) {
+                    perror("waitpid failed");
+                    exit(-1);
+            }
             for (int i = 0; i < atoi(argv[4]); ++i) {
-                write(fdout, argv[1], strlen(argv[1]));
+                if (write(fdout, argv[1], strlen(argv[1])) == -1) {
+                    perror("write failed");
+                    exit(-1);
+                }
             }
         }
     }

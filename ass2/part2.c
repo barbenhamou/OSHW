@@ -16,10 +16,18 @@ void write_message(const char *message, int count) {
 void __aquire() {
     errno = 0;
     int fd = open("lockfile.lock", O_CREAT | O_EXCL, 0666);
+    if (fd == -1) {
+        perror("open failed");
+        exit(-1);
+    }
     while (errno == EEXIST) {
         errno = 0;
         usleep((rand() % 100) * 10000);
         fd = open("lockfile.lock", O_CREAT | O_EXCL, 0666);
+        if (fd == -1) {
+            perror("open failed");
+            exit(-1);
+        }
     }
 }
 
@@ -37,7 +45,10 @@ int main(int argc, const char* argv[]) {
     pid_t pid;
 
     for (; i <= child_processes_count; ++i) {
-        pid = fork();
+        if ((pid = fork()) < 0) {
+            perror("fork failed");
+            exit(-1);
+        }
         if (pid == 0) {
             srand(getpid());
             __aquire();
