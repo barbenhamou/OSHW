@@ -5,23 +5,20 @@ last_op op = FIRST;
 buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
     buffered_file_t* bf = (buffered_file_t*)malloc(sizeof(buffered_file_t));
     if (bf == 0) {
-        perror("malloc failed");
-        return 0;
+        return -1;
     }
     
     bf->read_buffer = (char*)calloc(BUFFER_SIZE, 1);
     if (bf->read_buffer == 0) {
-        perror("malloc failed");
         free(bf);
-        return 0;
+        return -1;
     }
 
     bf->write_buffer = (char*)calloc(BUFFER_SIZE, 1);
     if (bf->write_buffer == 0) {
-        perror("malloc failed");
         free(bf->read_buffer);
         free(bf);
-        return 0;
+        return -1;
     }
 
     bf->write_buffer_size = BUFFER_SIZE;
@@ -51,7 +48,6 @@ buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
     bf->fd = open(pathname, flags, perm);
 
     if (bf->fd == -1) {
-        perror("open failed");
         free(bf->read_buffer);
         free(bf->write_buffer);
         free(bf);
@@ -65,8 +61,6 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count) {
     if (bf->preappend) {
         char* temp_buf = (char*)malloc(bf->write_buffer_pos);
         if (temp_buf == 0) {
-            perror("malloc failed");
-            buffered_close(bf);
             return -1;
         }
 
@@ -147,8 +141,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         memset(bf->read_buffer, 0, bf->read_buffer_size);
 
         if (lseek(bf->fd, left_overs, SEEK_CUR) == -1) {
-            perror("lseek failed");
-            buffered_close(bf);
             return -1;
         }
 
@@ -156,8 +148,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         total = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
 
         if (bytes_read == -1) {
-            perror("read failed");
-            buffered_close(bf);
             return -1;
         } 
 
@@ -174,8 +164,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
                     --i;
                     continue;
                 }
-                perror("read failed");
-                buffered_close(bf);
                 return -1;
             } 
 
@@ -185,8 +173,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         if (remainder != 0) {
             memcpy(buf + left_overs + iter * bf->read_buffer_size, bf->read_buffer, remainder);
             if (lseek(bf->fd, remainder - total, SEEK_CUR) == -1) {
-                perror("lseek failed");
-                buffered_close(bf);
                 return -1;
             }
         }
@@ -197,9 +183,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         errno = 0;
         total = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
 
-        if (bytes_read == -1) {
-            perror("read failed");
-            buffered_close(bf);
+        if (total == -1) {
             return -1;
         }
 
@@ -216,8 +200,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
                     --i;
                     continue;
                 }
-                perror("read failed");
-                buffered_close(bf);
                 return -1;
             } 
 
@@ -227,8 +209,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         if (remainder != 0) {
             memcpy(buf + iter * bf->read_buffer_size, bf->read_buffer, remainder);
             if (lseek(bf->fd, remainder - total, SEEK_CUR) == -1) {
-                perror("lseek failed");
-                buffered_close(bf);
                 return -1;
             }
         }
@@ -241,8 +221,6 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         total = count;
 
         if (lseek(bf->fd, total, SEEK_CUR) == -1) {
-            perror("lseek failed");
-            buffered_close(bf);
             return -1;
         }
     }
@@ -255,15 +233,11 @@ int buffered_flush(buffered_file_t *bf) {
     if (bf->preappend) {
         off_t file_size = lseek(bf->fd, 0, SEEK_END);
         if (file_size == -1) {
-            perror("lseek failed");
-            buffered_close(bf);
             return -1;
         }
 
         char* temp_buf = (char*)malloc(file_size);
         if (temp_buf == 0) {
-            perror("malloc failed");
-            buffered_close(bf);
             return -1;
         }
 
@@ -285,8 +259,6 @@ int buffered_flush(buffered_file_t *bf) {
                 if (errno == EINTR) {
                     continue;
                 }
-                perror("write failed");
-                buffered_close(bf);
                 return -1;
             }
 
@@ -304,7 +276,6 @@ int buffered_close(buffered_file_t *bf) {
         buffered_flush(bf);
     }
     if (close(bf->fd) == -1) {
-        perror("close failed");
         return -1;
     }
 
