@@ -106,8 +106,8 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
         return;
     }
 
-    char src_path[0x1000];
-    char dest_path[0x1000];
+    char* src_path = (char*)malloc(1000);
+    char* dest_path = (char*)malloc(1000);
     struct dirent *entry;
 
     while ((entry = readdir(dir)) != NULL) {

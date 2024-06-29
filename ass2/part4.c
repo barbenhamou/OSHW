@@ -11,30 +11,28 @@ void print_usage(const char *prog_name) {
 }
 
 int main(int argc, char *argv[]) {
-
     int opt;
     int copy_symlinks = 0;
     int copy_permissions = 0;
 
 
-
-    while ((opt = getopt(argc, argv, "lp")) != -1) {
-        switch (opt) {
-            case 'l':
-                copy_symlinks = 1;
-                break;
-            case 'p':
-                copy_permissions = 1;
-                break;
-            default:
-                print_usage(argv[0]);
-                return EXIT_FAILURE;
+    opt = getopt(argc, argv, "lp");
+    while (opt != -1) {
+        if (opt == 'l') {
+            copy_symlinks = 1;
+        } else if (opt == 'p') {
+            copy_permissions = 1;
+        } else {
+            print_usage(argv[0]);
+            return -1;
         }
+
+        opt = getopt(argc, argv, "lp");
     }
 
     if (optind + 2 != argc) {
         print_usage(argv[0]);
-        return EXIT_FAILURE;
+        return -1;
     }
 
     const char *src_dir = argv[optind];

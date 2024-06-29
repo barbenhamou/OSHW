@@ -103,12 +103,6 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count) {
         
 
     } else {
-        if (lseek(bf->fd, 0, SEEK_END) == -1) {
-            perror("lseek failed");
-            buffered_close(bf);
-            return -1;
-        }
-
         size_t left_overs = bf->write_buffer_size - bf->write_buffer_pos;
         
         if (left_overs < count) {
@@ -141,21 +135,23 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count) {
 
 ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
     int off = 0;
-    if (lseek(bf->fd, 0, SEEK_SET) == -1) {
-        perror("lseek failed");
-        buffered_close(bf);
-        return -1;
-    }
 
     if (op == WRITE) {
         buffered_flush(bf);
     }
 
-    size_t left_overs = bf->read_buffer_pos, bytes_read = 0, total = 0;
+    size_t left_overs = bf->read_buffer_size - bf->read_buffer_pos, bytes_read = 0, total = 0;
     
-    if (left_overs < count) {
+    if (left_overs < count && strlen(bf->read_buffer) != 0) {
         memcpy(buf, bf->read_buffer, left_overs);
         memset(bf->read_buffer, 0, bf->read_buffer_size);
+
+        if (lseek(bf->fd, left_overs, SEEK_CUR) == -1) {
+            perror("lseek failed");
+            buffered_close(bf);
+            return -1;
+        }
+
         errno = 0;
         total = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
 
@@ -168,7 +164,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         size_t iter = (count - left_overs) / bf->read_buffer_size, remainder = (count - left_overs) % bf->read_buffer_size;
 
         for (size_t i = 0; i < iter; ++i) {
-            memcpy(buf + left_overs + i*bf->read_buffer_size, bf->read_buffer, bf->read_buffer_size);
+            memcpy(buf + left_overs + i * bf->read_buffer_size, bf->read_buffer, bf->read_buffer_size);
             errno = 0;
             memset(bf->read_buffer, 0, bf->read_buffer_size);
             bytes_read = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
@@ -187,7 +183,54 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         }
 
         if (remainder != 0) {
-            memcpy(buf + left_overs + iter*bf->read_buffer_size, bf->read_buffer, remainder);
+            memcpy(buf + left_overs + iter * bf->read_buffer_size, bf->read_buffer, remainder);
+            if (lseek(bf->fd, remainder - total, SEEK_CUR) == -1) {
+                perror("lseek failed");
+                buffered_close(bf);
+                return -1;
+            }
+        }
+
+        bf->read_buffer_pos = remainder;
+
+    } else if (strlen(bf->read_buffer) == 0) {
+        errno = 0;
+        total = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
+
+        if (bytes_read == -1) {
+            perror("read failed");
+            buffered_close(bf);
+            return -1;
+        }
+
+        size_t iter = count / bf->read_buffer_size, remainder = count % bf->read_buffer_size;
+
+        for (size_t i = 0; i < iter; ++i) {
+            memcpy(buf + i*bf->read_buffer_size, bf->read_buffer, bf->read_buffer_size);
+            errno = 0;
+            memset(bf->read_buffer, 0, bf->read_buffer_size);
+            bytes_read = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
+
+            if (bytes_read == -1) {
+                if (errno == EINTR) {
+                    --i;
+                    continue;
+                }
+                perror("read failed");
+                buffered_close(bf);
+                return -1;
+            } 
+
+            total += bytes_read;
+        }
+
+        if (remainder != 0) {
+            memcpy(buf + iter * bf->read_buffer_size, bf->read_buffer, remainder);
+            if (lseek(bf->fd, remainder - total, SEEK_CUR) == -1) {
+                perror("lseek failed");
+                buffered_close(bf);
+                return -1;
+            }
         }
 
         bf->read_buffer_pos = remainder;
@@ -196,6 +239,12 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         memcpy(buf, bf->read_buffer + bf->read_buffer_pos, count);
         bf->read_buffer_pos += count;
         total = count;
+
+        if (lseek(bf->fd, total, SEEK_CUR) == -1) {
+            perror("lseek failed");
+            buffered_close(bf);
+            return -1;
+        }
     }
 
     op = READ;

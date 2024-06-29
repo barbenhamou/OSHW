@@ -3,7 +3,7 @@
 void copy_file(const char *src, const char *dest, int copy_symlinks, int copy_permissions) {
     struct stat src_stat;
     if (lstat(src, &src_stat) == -1) {
-        perror("COMMAND failed");
+        perror("lstat failed");
         return;
     }
 
@@ -11,26 +11,26 @@ void copy_file(const char *src, const char *dest, int copy_symlinks, int copy_pe
         char linked_to[0x1000];
         ssize_t path_length;
         if ((path_length = readlink(src, linked_to, 0x1000)) == -1) {
-            perror("COMMAND failed");
+            perror("readlink failed");
             return;
         }
 
         linked_to[path_length] = '\0';
         if (symlink(linked_to, dest) == -1) {
-            ("COMMAND failed");
+            ("symlink failed");
             return;
         }
         
     } else {
         int fdsrc;
         if ((fdsrc = open(src, O_RDONLY)) == -1) {
-            perror("COMMAND failed");
+            perror("open failed");
             return;
         }
 
         int fddst;
         if ((fddst = open(dest, O_WRONLY | O_TRUNC | O_CREAT, src_stat.st_mode)) == -1) {
-            perror("COMMAND failed");
+            perror("open failed");
             return;
         }
 
@@ -41,7 +41,7 @@ void copy_file(const char *src, const char *dest, int copy_symlinks, int copy_pe
                 close(fddst);
                 close(fdsrc);
                 free(write_buffer);
-                perror("COMMAND failed");
+                perror("read failed");
                 return;
             }
         }
@@ -66,7 +66,7 @@ ssize_t create_dir(const char* path) {
 
     char* temp = (char*)calloc(0x1000, 1);
     if (temp == 0) {
-        perror("COMMMAND failed");
+        perror("calloc failed");
         return -1;
     }
 
@@ -78,7 +78,7 @@ ssize_t create_dir(const char* path) {
             *i = '\0';
             errno = 0;
             if (mkdir(temp, S_IRWXU) == -1 && errno != EEXIST) {
-                perror("COMMMAND failed");
+                perror("mkdir failed");
                 free(temp);
                 return -1;
             }
@@ -89,7 +89,7 @@ ssize_t create_dir(const char* path) {
     errno = 0;
     if (mkdir(temp, S_IRWXU) == -1 && errno != EEXIST) {
         free(temp);
-        perror("COMMMAND failed");
+        perror("mkdir failed");
         return -1;
     }
 
@@ -101,7 +101,7 @@ ssize_t create_dir(const char* path) {
 void copy_directory(const char *src, const char *dest, int copy_symlinks, int copy_permissions) {
     struct stat src_stat;
     if (lstat(src, &src_stat) == -1) {
-        perror("COMMAND failed");
+        perror("lstat failed");
         return;
     }
 
@@ -111,7 +111,7 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
             return;
         } else {
             if (lstat(src, &src_stat) == -1) {
-                perror("COMMAND failed");
+                perror("lstat failed");
                 return;
             }
         }
@@ -122,11 +122,15 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
     DIR* dir = opendir(src);
     if (dir == NULL) {
         remove(dest);
-        perror("COMMAND failed");
+        if (remove(dest) == -1) {
+            perror("remove failed");
+        }
+        perror("opendir failed");
         return;        
     }   
 
-    char dest_path[0x1000], src_path[0x1000];
+    char* src_path = (char*)malloc(1000);
+    char* dest_path = (char*)malloc(1000);
 
     struct dirent* entry = readdir(dir);
     while (entry != NULL) {
@@ -150,8 +154,10 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
     }
     
     if (closedir(dir) == -1) {
-        perror("COMMAND failed");
-        remove(dest);
+        perror("closedir failed");
+        if (remove(dest) == -1) {
+            perror("remove failed");
+        }
         return;
     }
 }
