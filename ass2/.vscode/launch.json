@@ -7,7 +7,7 @@
         "name": "(gdb) Launch",
         "type": "cppdbg",
         "request": "launch",
-        "program": "${env:HOME}/OSHW/ass2/a",
+        "program": "${env:HOME}/OSHW/ass2/main_program",
         "args": ["-l", "-p", "source_directory", "dest_directory"],
         "stopAtEntry": false,
         "cwd": "${fileDirname}",

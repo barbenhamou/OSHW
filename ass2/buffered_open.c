@@ -241,12 +241,30 @@ int buffered_flush(buffered_file_t *bf) {
             return -1;
         }
 
-        lseek(bf->fd, 0, SEEK_SET);
-        read(bf->fd, temp_buf, file_size);
+        if (lseek(bf->fd, 0, SEEK_SET) == -1) {
+            return -1;
+        }
 
-        lseek(bf->fd, 0, SEEK_SET);
-        write(bf->fd, bf->write_buffer, bf->write_buffer_pos);
-        write(bf->fd, temp_buf, file_size);
+        if (read(bf->fd, temp_buf, file_size) == -1) {
+            return -1;
+        }
+
+        if (lseek(bf->fd, 0, SEEK_SET) == -1) {
+            return -1;
+        }
+
+        
+        if (write(bf->fd, bf->write_buffer, bf->write_buffer_pos) == -1) {
+            return -1;
+        }
+        
+        if (write(bf->fd, temp_buf, file_size) == -1) {
+            return -1;
+        }
+
+        if (lseek(bf->fd, bf->write_buffer_pos, SEEK_SET) == -1) {
+            return -1;
+        }
 
         free(temp_buf);
 
@@ -284,3 +302,13 @@ int buffered_close(buffered_file_t *bf) {
     free(bf);
     return 0;
 }
+
+// int main() {
+//     char* buff = "hello";
+//     char buf[strlen(buff)];
+//     buffered_file_t* bf = buffered_open("hi.txt",  O_RDWR | O_PREAPPEND, 0666);
+//     // ssize_t bytes = buffered_write(bf, buff, strlen(buff));
+//     ssize_t bytes = buffered_write(bf, "w", 1);
+//     bytes = buffered_read(bf, buf, 3);
+//     printf("%s\n", buf);
+// }

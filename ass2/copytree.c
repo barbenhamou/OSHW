@@ -29,11 +29,18 @@ void copy_file(const char *src, const char *dest, int copy_symlinks, int copy_pe
         }
 
         int fddst;
-        if ((fddst = open(dest, O_WRONLY | O_TRUNC | O_CREAT, src_stat.st_mode)) == -1) {
-            perror("open failed");
-            return;
+        if (copy_permissions) {
+            if ((fddst = open(dest, O_WRONLY | O_TRUNC | O_CREAT, src_stat.st_mode)) == -1) {
+                perror("open failed");
+                return;
+            }
+        } else {
+            if ((fddst = open(dest, O_WRONLY | O_TRUNC | O_CREAT, 0777)) == -1) {
+                perror("open failed");
+                return;
+            }
         }
-
+        
         ssize_t chunk = 0;
         char* write_buffer = (char*)malloc(0x1000);
         while ((chunk = read(fdsrc, write, 0x1000))) {
@@ -129,8 +136,8 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
         return;        
     }   
 
-    char* src_path = (char*)malloc(1000);
-    char* dest_path = (char*)malloc(1000);
+    char* src_path = (char*)malloc(0x1000);
+    char* dest_path = (char*)malloc(0x1000);
 
     struct dirent* entry = readdir(dir);
     while (entry != NULL) {
@@ -139,8 +146,8 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
             continue;
         }
 
-        snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name);
-        snprintf(dest_path, sizeof(dest_path), "%s/%s", dest, entry->d_name);
+        snprintf(src_path, 0x1000, "%s/%s", src, entry->d_name);
+        snprintf(dest_path, 0x1000, "%s/%s", dest, entry->d_name);
 
         if (entry->d_type == 10 || (lstat(src_path, &src_stat) == 0 && S_ISLNK(src_stat.st_mode))) {
             copy_file(src_path, dest_path, copy_symlinks, copy_permissions);

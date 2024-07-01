@@ -20,7 +20,18 @@ then
 
 elif [ $1 -eq 4 ]
 then
+    mkdir ./source_directory
+    mkdir ./source_directory/subdir1
+    mkdir ./source_directory/subdir2
+    touch ./source_directory/file1.txt
+    touch ./source_directory/file2.txt
+    chmod 777 ./source_directory/file1.txt
+    chmod 666 ./source_directory/file2.txt
+    touch ./source_directory/subdir1/file4.txt
+    touch ./source_directory/subdir1/file3.txt
+    touch ./source_directory/subdir2/file5.txt
+    ln -s ../file1.txt ./source_directory/subdir2/file6.txt
     gcc -g -w -o main_program copytree.c part4.c
-    ./main_program -l -p source_directory dest_directory
+    ./main_program source_directory dest_directory
 fi
 
