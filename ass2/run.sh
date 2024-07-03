@@ -4,7 +4,7 @@ then
     ./a "Parent Msg
 " "Child1 Msg
 " "Child2 Msg
-" 7
+" 3
 rm a    
 
 elif [ $1 -eq 2 ]

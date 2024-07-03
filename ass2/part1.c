@@ -32,12 +32,9 @@ int main(int argc, const char* argv[]) {
         }
     } else {
 
-        if (waitpid(pid1, &status, 0) == -1) {
-            perror("waitpid failed");
-            exit(-1);
-        }
-
         pid2 = fork();
+
+        sleep(1);
 
         if (pid2 < 0) {
             perror("fork failed");

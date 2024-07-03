@@ -16,7 +16,7 @@ void write_message(const char *message, int count) {
 void __aquire() {
     errno = 0;
     int fd = open("lockfile.lock", O_CREAT | O_EXCL, 0666);
-    if (fd == -1) {
+    if (fd == -1 && errno != EEXIST) {
         perror("open failed");
         exit(-1);
     }
@@ -24,7 +24,7 @@ void __aquire() {
         errno = 0;
         usleep((rand() % 100) * 10000);
         fd = open("lockfile.lock", O_CREAT | O_EXCL, 0666);
-        if (fd == -1) {
+        if (fd == -1 && errno != EEXIST) {
             perror("open failed");
             exit(-1);
         }

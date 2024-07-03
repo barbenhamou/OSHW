@@ -1,7 +1,5 @@
 #include "buffered_open.h"
 
-last_op op = FIRST;
-
 buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
     buffered_file_t* bf = (buffered_file_t*)malloc(sizeof(buffered_file_t));
     if (bf == 0) {
@@ -53,6 +51,8 @@ buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
         free(bf);
         return -1;
     }
+
+    bf->OP = FIRST;
 
     return bf;
 }
@@ -123,14 +123,14 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count) {
         }
     }
 
-    op = WRITE;
+    bf->OP = WRITE;
     return count;
 }
 
 ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
     int off = 0;
 
-    if (op == WRITE) {
+    if (bf->OP == WRITE) {
         buffered_flush(bf);
     }
 
@@ -225,7 +225,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
         }
     }
 
-    op = READ;
+    bf->OP = READ;
     return total;
 }
 
@@ -303,12 +303,12 @@ int buffered_close(buffered_file_t *bf) {
     return 0;
 }
 
-// int main() {
-//     char* buff = "hello";
-//     char buf[strlen(buff)];
-//     buffered_file_t* bf = buffered_open("hi.txt",  O_RDWR | O_PREAPPEND, 0666);
-//     // ssize_t bytes = buffered_write(bf, buff, strlen(buff));
-//     ssize_t bytes = buffered_write(bf, "w", 1);
-//     bytes = buffered_read(bf, buf, 3);
-//     printf("%s\n", buf);
-// }
+int main() {
+    char* buff = "hello";
+    char buf[strlen(buff)];
+    buffered_file_t* bf = buffered_open("hi.txt",  O_RDWR | O_PREAPPEND, 0666);
+    // ssize_t bytes = buffered_write(bf, buff, strlen(buff));
+    ssize_t bytes = buffered_write(bf, "w", 1);
+    bytes = buffered_read(bf, buf, 3);
+    printf("%s\n", buf);
+}

@@ -15,6 +15,8 @@
 // Define the standard buffer size for read and write operations
 #define BUFFER_SIZE 4096
 
+typedef enum last_op {WRITE, READ, FIRST} last_op;
+
 // Structure to hold the buffer and original flags
 typedef struct {
     int fd;                     // File descriptor for the opened file
@@ -31,9 +33,12 @@ typedef struct {
     int flags;                  // File flags used to control file access modes and options (like O_RDONLY, O_WRONLY)
 
     int preappend;              // Flag to remember if the O_PREAPPEND flag was used, indicating special handling for writes
+
+    last_op OP;
+
+
 } buffered_file_t;
 
-typedef enum last_op {WRITE, READ, FIRST} last_op;
 
 // Function to wrap the original open function
 buffered_file_t *buffered_open(const char *pathname, int flags, ...);
