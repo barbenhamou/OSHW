@@ -274,7 +274,7 @@ int buffered_flush(buffered_file_t *bf) {
     } else {
         ssize_t total = 0, current = 0;
         off_t curr = 0;
-        if ((curr = lseek(bf->fd, 0, SEEK_CUR)) != -1) {
+        if ((curr = lseek(bf->fd, 0, SEEK_CUR)) == -1) {
             return -1;
         }
 
@@ -295,7 +295,7 @@ int buffered_flush(buffered_file_t *bf) {
             if (lseek(bf->fd, curr, SEEK_SET) != -1) {
                 return -1;
             }
-            
+
             bool_flush_before_read = 0;
         }
     }
@@ -322,9 +322,8 @@ int buffered_close(buffered_file_t *bf) {
 int main() {
     char* buff = "hello";
     char buf[strlen(buff)];
-    buffered_file_t* bf = buffered_open("hi.txt",  O_RDWR | O_PREAPPEND, 0666);
-    // ssize_t bytes = buffered_write(bf, buff, strlen(buff));
-    ssize_t bytes = buffered_write(bf, "w", 1);
+    buffered_file_t* bf = buffered_open("hi.txt",  O_RDWR, 0666);
+    ssize_t bytes = buffered_write(bf, buff, strlen(buff));
     bytes = buffered_read(bf, buf, 3);
     printf("%s\n", buf);
 }
