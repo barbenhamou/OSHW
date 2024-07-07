@@ -1,5 +1,7 @@
 #include "buffered_open.h"
 
+int bool_flush_before_read = 0;
+
 buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
     buffered_file_t* bf = (buffered_file_t*)malloc(sizeof(buffered_file_t));
     if (bf == 0) {
@@ -131,6 +133,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count) {
     int off = 0;
 
     if (bf->OP == WRITE) {
+        bool_flush_before_read = 1;
         buffered_flush(bf);
     }
 
@@ -270,6 +273,11 @@ int buffered_flush(buffered_file_t *bf) {
 
     } else {
         ssize_t total = 0, current = 0;
+        off_t curr = 0;
+        if ((curr = lseek(bf->fd, 0, SEEK_CUR)) != -1) {
+            return -1;
+        }
+
         while (total < bf->write_buffer_pos) {
             errno = 0;
             current = write(bf->fd, bf->write_buffer + total, bf->write_buffer_pos - total);
@@ -281,6 +289,14 @@ int buffered_flush(buffered_file_t *bf) {
             }
 
             total += current;
+        }
+
+        if (bool_flush_before_read) {
+            if (lseek(bf->fd, curr, SEEK_SET) != -1) {
+                return -1;
+            }
+            
+            bool_flush_before_read = 0;
         }
     }
 

@@ -30,8 +30,10 @@ then
     touch ./source_directory/subdir1/file4.txt
     touch ./source_directory/subdir1/file3.txt
     touch ./source_directory/subdir2/file5.txt
-    ln -s ../file1.txt ./source_directory/subdir2/file6.txt
-    gcc -g -w -o main_program copytree.c part4.c
-    ./main_program source_directory dest_directory
+    ln -s /home/bar/OSHW/ass2/source_directory/file1.txt ./source_directory/subdir2/file6.txt
+    gcc -c copytree.c -o copytree.o
+    ar rcs libcopytree.a copytree.o
+    gcc part4.c -L. -lcopytree -o main_program
+    ./main_program -l -p source_directory destination_directory
 fi
 
