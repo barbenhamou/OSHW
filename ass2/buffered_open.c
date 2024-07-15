@@ -292,7 +292,7 @@ int buffered_flush(buffered_file_t *bf) {
         }
 
         if (bool_flush_before_read) {
-            if (lseek(bf->fd, curr, SEEK_SET) != -1) {
+            if (lseek(bf->fd, curr, SEEK_SET) == -1) {
                 return -1;
             }
 
