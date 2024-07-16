@@ -15,16 +15,14 @@ class BoundedBuffer {
         int buffer_size;
         
     
-    public:
-        BoundedBuffer(int size) : buffer(size) {
-            buffer_size(size);
-            mutex(1);
-            empty(size);
-            full(0);
-        }
+     public:
+        BoundedBuffer(int size)
+            : buffer(size), buffer_size(size), mutex(1), empty(size), full(0) {}
+
+
 
         void insert(string s) {
-            empty.acquire()
+            empty.acquire();
             mutex.acquire();
 
             buffer[next_in] = s;
@@ -49,3 +47,7 @@ class BoundedBuffer {
             return temp;
         }
 };
+
+int main() {
+    return 0;
+}

@@ -15,9 +15,10 @@ class Producer {
         int id;
         string type;
         int j;
+        int size;
     
     public:
-        Producer(int id) {
+        Producer(int id, int size) {
             srand(time(0));
             int rnd = rand() % 3;
             switch (rnd) {
@@ -41,6 +42,7 @@ class Producer {
             }
 
             Producer::id = id;
+            Producer::size = size;
         }
 
         string buildString() {
@@ -57,7 +59,7 @@ class Producer {
 int Producer::NEWS_COUNTER = 0, Producer::SPORTS_COUNTER = 0, Producer::WEATHER_COUNTER = 0;
 
 int main() {
-    Producer p(5);
+    Producer p(5, 5);
     cout << p.buildString();
     return 0;
 }
