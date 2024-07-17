@@ -8,9 +8,9 @@ CXXFLAGS = -W -g -std=c++20
 SRCS = BoundedBuffer.cpp \
        CoEditor.cpp \
        Dispatcher.cpp \
-       Main.cpp \
        Producer.cpp \
-       ScreenManager.cpp
+       ScreenManager.cpp \
+       Main.cpp 
 
 # Header files
  HDRS = BoundedBuffer.h \

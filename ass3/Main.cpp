@@ -10,6 +10,10 @@
 
 using namespace std;
 
+    
+vector<BoundedBuffer> producerBuffers;
+vector<Producer> producers;
+
 void* producerThreadFunction(void *arg) {
     Producer* producer = (Producer*)arg;
     producer->produce();
@@ -18,7 +22,7 @@ void* producerThreadFunction(void *arg) {
 
 void* dispatcherThreadFunction(void *arg) {
     Dispatcher* dispatcher = (Dispatcher*)arg;
-    dispatcher->dispatch();
+    dispatcher->dispatch(producerBuffers);
     return nullptr;
 }
 
@@ -48,10 +52,6 @@ int main(int argc, char *argv[])
 
     pthread_t screenManagerHandle;
 
-    
-    vector<BoundedBuffer> producerBuffers{0};
-    vector<Producer> producers{0};
-
     UnBoundedBuffer sportsQueue;
     UnBoundedBuffer newsQueue;
     UnBoundedBuffer weatherQueue;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         producers.emplace_back(producerIds[i], msgsCount[i], &producerBuffers[i]);
     }
 
-    Dispatcher dispatcher(3 ,producerBuffers, &sportsQueue, &newsQueue, &weatherQueue);
+    Dispatcher dispatcher(3, &sportsQueue, &newsQueue, &weatherQueue);
     CoEditor sportsEditor(&sportsQueue, &screenBuffer);
     CoEditor newsEditor(&newsQueue, &screenBuffer);
     CoEditor weatherEditor(&weatherQueue, &screenBuffer);

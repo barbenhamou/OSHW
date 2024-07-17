@@ -1,9 +1,15 @@
 #include "Dispatcher.h"
 
-Dispatcher::Dispatcher(int numProducers, vector<BoundedBuffer> producerBuffers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer) 
-: numProducers(numProducers), producerBuffers(producerBuffers), sportsBuffer(sportsBuffer), newsBuffer(newsBuffer), weatherBuffer(weatherBuffer) {}
+Dispatcher::Dispatcher(int numProducers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer) 
+: numProducers(numProducers) {
+    //this->producerBuffers = producerBuffers;
+    this->sportsBuffer = sportsBuffer;
+    this->newsBuffer = newsBuffer;
+    this->weatherBuffer = weatherBuffer;
+}
 
-void Dispatcher::dispatch() {
+
+void Dispatcher::dispatch(vector<BoundedBuffer> producerBuffers) {
     int amountDone = 0;
     string ret;
     while (amountDone < this->numProducers) {
