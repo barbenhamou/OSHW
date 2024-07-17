@@ -13,9 +13,8 @@ class UnBoundedBuffer {
         queue<string> buffer;
         int count = 0;
         
-    
      public:
-        UnBoundedBuffer(int size);
+        UnBoundedBuffer();
         void insert(string s);
         string remove();
         int getCount();

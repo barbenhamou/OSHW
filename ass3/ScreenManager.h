@@ -2,6 +2,7 @@
 #define SCREENMANAGER_H
 
 #include <string>
+#include <iostream>
 #include "UnBoundedBuffer.h"
 
 class ScreenManager {
@@ -11,6 +12,6 @@ class ScreenManager {
     public:
         ScreenManager(UnBoundedBuffer* screenBuffer);
         void collectData();
-}
+};
 
 #endif

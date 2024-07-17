@@ -3,7 +3,7 @@
 using namespace std;
 
 BoundedBuffer::BoundedBuffer(int size)
-    : buffer(size), buffer_size(size), mutex(1), empty(size), full(0) {}
+    : buffer(size), buffer_size(size), mutex(1), empty(size), full(0), next_in(0), next_out(0), count(0) {}
 
 void BoundedBuffer::insert(string s) {
     empty.acquire();
@@ -35,8 +35,4 @@ string BoundedBuffer::remove() {
     empty.release();
 
     return temp;
-}
-
-int main() {
-    return 0;
 }

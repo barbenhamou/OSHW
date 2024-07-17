@@ -8,12 +8,10 @@ using namespace std;
 #include "BoundedBuffer.h"
 
 class Producer {
-    public:
-        static int SPORTS_COUNTER;
-        static int NEWS_COUNTER;
-        static int WEATHER_COUNTER;
-
     private:
+        int SPORTS_COUNTER;
+        int NEWS_COUNTER;
+        int WEATHER_COUNTER;
         int id;
         int msgCount;
         BoundedBuffer* buffer;

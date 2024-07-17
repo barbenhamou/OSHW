@@ -7,30 +7,31 @@ void Dispatcher::dispatch() {
     int amountDone = 0;
     string ret;
     while (amountDone < this->numProducers) {
-        for (auto buffer : producerBuffers) {
-            ret = buffer.remove();
+        for (size_t j = 0; j < producerBuffers.size(); ++j) {
+            string ret = producerBuffers[j].remove();
 
-            if (!ret.compare("")) {
+            if (ret.compare("")) {
                 continue;
             }
 
-            if (!ret.compare("DONE")) {
+            if (ret == "DONE") {
                 amountDone++;
-                continue;
+                break;  // Exit the inner loop to move to the next producer
             }
 
-            if (ret.find("SPORTS")) {
+            if (ret.find("SPORTS") != string::npos) {
                 sportsBuffer->insert(ret);
-            } else if (ret.find("NEWS")) {
+            } else if (ret.find("NEWS") != string::npos) {
                 newsBuffer->insert(ret);
-            } else if (ret.find("WEATHER")) {
+            } else if (ret.find("WEATHER") != string::npos) {
                 weatherBuffer->insert(ret);
             }
-
         }
     }
 
-    sportsBuffer->insert("DONE");
-    newsBuffer->insert("DONE");
-    weatherBuffer->insert("DONE");
+    if (amountDone == this->numProducers) {
+        sportsBuffer->insert("DONE");
+        newsBuffer->insert("DONE");
+        weatherBuffer->insert("DONE");
+    }
 }

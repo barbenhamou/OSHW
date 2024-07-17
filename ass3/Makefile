@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -Wall -g -std=c++20
+CXXFLAGS = -W -g -std=c++20
 
 # Source files
 SRCS = BoundedBuffer.cpp \
@@ -13,11 +13,11 @@ SRCS = BoundedBuffer.cpp \
        ScreenManager.cpp
 
 # Header files
-# HDRS = BoundedBuffer.h \
-#        CoEditor.h \
-#        Dispatcher.h \
-#        Producer.h \
-#        ScreenManager.h
+ HDRS = BoundedBuffer.h \
+        CoEditor.h \
+        Dispatcher.h \
+        Producer.h \
+        ScreenManager.h
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
@@ -33,8 +33,7 @@ $(EXEC): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 # Compile source files into object files
-%.o: %.cpp
- 	#$(HDRS)
+%.o: %.cpp $(HDRS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean up

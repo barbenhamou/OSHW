@@ -12,9 +12,9 @@ class BoundedBuffer {
         binary_semaphore mutex;
         counting_semaphore<> empty, full;
         vector<string> buffer;
-        int count = 0;
-        int next_in = 0;
-        int next_out = 0;
+        int count;
+        int next_in;
+        int next_out;
         int buffer_size;
         
     
