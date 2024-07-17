@@ -1,7 +1,7 @@
 #ifndef UNBOUNDEDBUFFER_H
 #define UNBOUNDEDBUFFER_H
 
-#include <semaphore>
+#include <semaphore.h>
 #include <string>
 #include <queue>
 
@@ -9,7 +9,7 @@ using namespace std;
 
 class UnBoundedBuffer {
     private:
-        binary_semaphore mutex;
+        sem_t mutex;
         queue<string> buffer;
         int count = 0;
         

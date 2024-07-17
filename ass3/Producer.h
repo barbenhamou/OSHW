@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
@@ -14,10 +16,11 @@ class Producer {
         int WEATHER_COUNTER;
         int id;
         int msgCount;
-        BoundedBuffer* buffer;
+        //BoundedBuffer* buffer;
     
     public:
-        Producer(int id, int msgCount, BoundedBuffer* buffer);
+        Producer(int id, int msgCount);
         string buildString();
-        void produce();
+        void produce(BoundedBuffer* buffer);
+        int getId();
 };

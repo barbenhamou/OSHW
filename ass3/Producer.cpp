@@ -2,8 +2,8 @@
 
 using namespace std;
 
-Producer::Producer(int id, int msgCount, BoundedBuffer* buffer) 
-: id(id), msgCount(msgCount), buffer(buffer), NEWS_COUNTER(0), SPORTS_COUNTER(0), WEATHER_COUNTER(0) {}
+Producer::Producer(int id, int msgCount) 
+: id(id), msgCount(msgCount), NEWS_COUNTER(0), SPORTS_COUNTER(0), WEATHER_COUNTER(0) {}
 
 string Producer::buildString() {
     srand(time(0) + this->id);
@@ -38,7 +38,7 @@ string Producer::buildString() {
     return builder;
 } 
 
-void Producer::produce() {
+void Producer::produce(BoundedBuffer* buffer) {
     string temp = "";
 
     for (int i = 0; i < msgCount; ++i) {
@@ -47,4 +47,8 @@ void Producer::produce() {
     }
 
     buffer->insert("DONE");
+}
+
+int Producer::getId() {
+    return id;
 }

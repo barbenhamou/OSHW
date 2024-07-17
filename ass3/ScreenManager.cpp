@@ -2,9 +2,9 @@
 
 using namespace std;
 
-ScreenManager::ScreenManager(UnBoundedBuffer* screenBuffer) : screenBuffer(screenBuffer) {}
+ScreenManager::ScreenManager() {}
 
-void ScreenManager::collectData() {
+void ScreenManager::collectData(UnBoundedBuffer* screenBuffer) {
     int doneCount = 0;
     
     string temp;

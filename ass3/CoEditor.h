@@ -7,12 +7,12 @@
 #include <thread>
 
 class CoEditor {
-    private:
-        UnBoundedBuffer* msgsBuffer;
-        UnBoundedBuffer* screenBuffer;
+    // private:
+    //     UnBoundedBuffer* msgsBuffer;
+    //     UnBoundedBuffer* screenBuffer;
     public:
-        CoEditor(UnBoundedBuffer* msgsBuffer, UnBoundedBuffer* screenBuffer);
-        void edit();
+        CoEditor();
+        void edit(UnBoundedBuffer* msgsBuffer, UnBoundedBuffer* screenBuffer);
 };
 
 #endif

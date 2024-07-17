@@ -1,16 +1,17 @@
 #ifndef BOUNDEDBUFFER_H
 #define BOUNDEDBUFFER_H
 
-#include <semaphore>
+#include <semaphore.h>
 #include <string>
+#include <fcntl.h>
 #include <vector>
 
 using namespace std;
 
 class BoundedBuffer {
     private:
-        binary_semaphore mutex;
-        counting_semaphore<> empty, full;
+        sem_t mutex;
+        sem_t empty, full;
         vector<string> buffer;
         int count;
         int next_in;

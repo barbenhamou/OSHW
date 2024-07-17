@@ -8,11 +8,11 @@
 class Dispatcher {
     private:
         //vector<BoundedBuffer> producerBuffers;
-        UnBoundedBuffer *sportsBuffer, *newsBuffer, *weatherBuffer;
+        //UnBoundedBuffer *sportsBuffer, *newsBuffer, *weatherBuffer;
         int numProducers;
     public:
-        Dispatcher(int numProducers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer);
-        void dispatch(vector<BoundedBuffer> producerBuffers);
+        Dispatcher(int numProducers);
+        void dispatch(BoundedBuffer* producerBuffers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer);
 };
 
 #endif

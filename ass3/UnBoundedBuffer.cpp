@@ -2,19 +2,24 @@
 
 using namespace std;
 
-UnBoundedBuffer::UnBoundedBuffer() : mutex(1), count(0) {}
+UnBoundedBuffer::UnBoundedBuffer() {
+    sem_init(&mutex, 0, 0);
+}
 
 void UnBoundedBuffer::insert(string s) {
-    mutex.acquire();
+    sem_wait(&mutex);
+    //mutex.acquire();
 
     buffer.push(s);
     count++;
 
-    mutex.release();
+    sem_post(&mutex);
+    //mutex.release();
 }
 
 string UnBoundedBuffer::remove() {
-    mutex.acquire();
+    sem_wait(&mutex);
+    //mutex.acquire();
 
     string temp = "";
 
@@ -24,7 +29,8 @@ string UnBoundedBuffer::remove() {
         count--;
     }
 
-    mutex.release();
+    sem_post(&mutex);
+    //mutex.release();
 
     return temp;
 }

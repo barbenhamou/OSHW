@@ -2,28 +2,35 @@
 
 using namespace std;
 
-BoundedBuffer::BoundedBuffer(int size)
-    : buffer(size), buffer_size(size), mutex(1), empty(size), full(0), next_in(0), next_out(0), count(0) {}
+BoundedBuffer::BoundedBuffer(int size) : buffer(size), buffer_size(size), next_in(0), next_out(0), count(0) {
+        sem_init(&mutex, 0, 0);
+        sem_init(&empty, 0, size);
+        sem_init(&full, 0, 0);
+    } 
 
 void BoundedBuffer::insert(string s) {
-    empty.acquire();
-    mutex.acquire();
+    sem_wait(&empty);
+    sem_wait(&mutex);
+    //empty.acquire();
+    //mutex.acquire();
 
     buffer[next_in] = s;
     ++count;
     next_in = (next_in + 1) % buffer_size;
 
-    mutex.release();
-    full.release();
+    sem_post(&mutex);
+    sem_post(&full);
+    // mutex.release();
+    // full.release();
 }
 
 string BoundedBuffer::remove() {
-    if (!full.try_acquire()) {
+    if (sem_trywait(&full) != 0) {
         return ""; //indicates a problem
     }
 
-    if (!mutex.try_acquire()) {
-        full.release();
+    if (sem_trywait(&mutex) != 0) {
+        sem_post(&full);
         return ""; //indicates a problem
     }
 
@@ -31,8 +38,8 @@ string BoundedBuffer::remove() {
     temp = buffer[next_out];
     next_out = (next_out + 1) % buffer_size;
 
-    mutex.release();
-    empty.release();
+    sem_post(&mutex);
+    sem_post(&empty);
 
     return temp;
 }

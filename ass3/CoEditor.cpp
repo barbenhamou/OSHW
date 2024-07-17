@@ -2,9 +2,9 @@
 
 using namespace std;
 
-CoEditor::CoEditor(UnBoundedBuffer* msgsBuffer, UnBoundedBuffer* screenBuffer) : msgsBuffer(msgsBuffer), screenBuffer(screenBuffer) {}
+CoEditor::CoEditor() {}
 
-void CoEditor::edit() {
+void CoEditor::edit(UnBoundedBuffer* msgsBuffer, UnBoundedBuffer* screenBuffer) {
 
     string temp;
 
@@ -12,7 +12,7 @@ void CoEditor::edit() {
 
         temp = msgsBuffer->remove();
         if (!temp.compare("DONE")) {
-            this->screenBuffer->insert("DONE");
+            screenBuffer->insert("DONE");
             break;
         }
 

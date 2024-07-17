@@ -7,11 +7,11 @@
 
 class ScreenManager {
     private:
-        UnBoundedBuffer* screenBuffer;
+        //UnBoundedBuffer* screenBuffer;
     
     public:
-        ScreenManager(UnBoundedBuffer* screenBuffer);
-        void collectData();
+        ScreenManager();
+        void collectData(UnBoundedBuffer* screenBuffer);
 };
 
 #endif

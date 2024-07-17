@@ -1,19 +1,19 @@
 #include "Dispatcher.h"
 
-Dispatcher::Dispatcher(int numProducers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer) 
+Dispatcher::Dispatcher(int numProducers) 
 : numProducers(numProducers) {
     //this->producerBuffers = producerBuffers;
-    this->sportsBuffer = sportsBuffer;
-    this->newsBuffer = newsBuffer;
-    this->weatherBuffer = weatherBuffer;
+    // this->sportsBuffer = sportsBuffer;
+    // this->newsBuffer = newsBuffer;
+    // this->weatherBuffer = weatherBuffer;
 }
 
 
-void Dispatcher::dispatch(vector<BoundedBuffer> producerBuffers) {
+void Dispatcher::dispatch(BoundedBuffer* producerBuffers, UnBoundedBuffer *sportsBuffer, UnBoundedBuffer *newsBuffer, UnBoundedBuffer *weatherBuffer) {
     int amountDone = 0;
     string ret;
     while (amountDone < this->numProducers) {
-        for (size_t j = 0; j < producerBuffers.size(); ++j) {
+        for (size_t j = 0; j < this->numProducers; ++j) {
             string ret = producerBuffers[j].remove();
 
             if (ret.compare("")) {

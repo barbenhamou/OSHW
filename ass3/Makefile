@@ -2,10 +2,11 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -W -g -std=c++20
+CXXFLAGS = -W -g
 
 # Source files
 SRCS = BoundedBuffer.cpp \
+       UnBoundedBuffer.cpp \
        CoEditor.cpp \
        Dispatcher.cpp \
        Producer.cpp \
@@ -14,6 +15,7 @@ SRCS = BoundedBuffer.cpp \
 
 # Header files
  HDRS = BoundedBuffer.h \
+        UnBoundedBuffer.h \
         CoEditor.h \
         Dispatcher.h \
         Producer.h \
