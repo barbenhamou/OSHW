@@ -11,13 +11,15 @@ void ScreenManager::collectData(UnBoundedBuffer* screenBuffer) {
 
     while (doneCount < 3) {
         temp = screenBuffer->remove();
-        if (temp.compare("DONE")) {
+        if (!temp.compare("DONE")) {
             doneCount++;
+            continue;
+        } else if (!temp.compare("")) {
             continue;
         }
 
         cout << temp << "\n";
     }
 
-    cout << "DONE";
+    cout << "DONE\n";
 }

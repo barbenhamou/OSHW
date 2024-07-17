@@ -14,9 +14,17 @@ void BoundedBuffer::insert(string s) {
     //empty.acquire();
     //mutex.acquire();
 
-    buffer[next_in] = s;
-    ++count;
-    next_in = (next_in + 1) % buffer_size;
+    //cout << "In Critical Insert\n";
+
+    if (s.compare("")) {
+        buffer[next_in] = s;
+        ++count;
+        next_in = (next_in + 1) % buffer_size;
+    }
+
+
+    //cout << "Out Critical Insert\n";
+
 
     sem_post(&mutex);
     sem_post(&full);
@@ -34,12 +42,29 @@ string BoundedBuffer::remove() {
         return ""; //indicates a problem
     }
 
+    //cout << "In Critical Remove\n";
+
+
     string temp;
     temp = buffer[next_out];
     next_out = (next_out + 1) % buffer_size;
+
+    //cout << "Out Critical Remove\n";
+
 
     sem_post(&mutex);
     sem_post(&empty);
 
     return temp;
+}
+
+void BoundedBuffer::print() {
+    sem_wait(&mutex);
+
+    for (string s : this->buffer) {
+        if (!s.compare("")) continue;
+        cout << s << "\n";
+    }
+
+    sem_post(&mutex);
 }

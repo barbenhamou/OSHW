@@ -24,6 +24,7 @@ class BoundedBuffer {
         BoundedBuffer(int size);
         void insert(string s);
         string remove();
+        void print();
 };
 
 

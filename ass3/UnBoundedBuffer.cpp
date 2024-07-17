@@ -10,13 +10,14 @@ void UnBoundedBuffer::insert(string s) {
     sem_wait(&mutex);
     //mutex.acquire();
 
-    cout << "In Critical Insert\n";
+    //cout << "In Critical Insert\n";
 
+    if (s.compare("")) {
+        buffer.push(s);
+        count++;
+    }
 
-    buffer.push(s);
-    count++;
-
-    cout << "Out Critical Insert\n";
+    //cout << "Out Critical Insert\n";
 
 
     sem_post(&mutex);
@@ -27,7 +28,7 @@ string UnBoundedBuffer::remove() {
     sem_wait(&mutex);
     //mutex.acquire();
 
-    cout << "In Critical Remove\n";
+    //cout << "In Critical Remove\n";
 
 
     string temp = "";
@@ -38,7 +39,7 @@ string UnBoundedBuffer::remove() {
         count--;
     }
 
-    cout << "Out Critical Remove\n";
+    //cout << "Out Critical Remove\n";
 
     sem_post(&mutex);
     //mutex.release();
@@ -50,12 +51,21 @@ int UnBoundedBuffer::getCount() {
     return this->count;
 }
 
-// void UnBoundedBuffer::print() {
-//     sem_wait(&mutex);
+void UnBoundedBuffer::print() {
+    sem_wait(&mutex);
 
-//     for (string s : this->buffer) {
-//         cout << s << "\n";
-//     }
+    queue<string> temp;
 
-//     sem_post(&mutex);
-// }
+    while (!this->buffer.empty()) {
+        cout << this->buffer.front() << "\n";
+        temp.push(this->buffer.front());
+        this->buffer.pop();
+    }
+
+    while (!temp.empty()) {
+        this->buffer.push(temp.front());
+        temp.pop();
+    }
+
+    sem_post(&mutex);
+}

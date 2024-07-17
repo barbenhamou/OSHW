@@ -6,7 +6,7 @@ Producer::Producer(int id, int msgCount)
 : id(id), msgCount(msgCount), NEWS_COUNTER(0), SPORTS_COUNTER(0), WEATHER_COUNTER(0) {}
 
 string Producer::buildString() {
-    srand(time(0) + this->id);
+    //srand(time(0) + this->id);
 
     string builder = "Producer ", type ="";
     int rnd = rand() % 3, j = 0;
@@ -48,7 +48,7 @@ void Producer::produce(BoundedBuffer* buffer) {
 
     buffer->insert("DONE");
 
-    cout << to_string(this->id) << " Done\n";
+    //cout << to_string(this->id) << " DONE\n";
 }
 
 int Producer::getId() {

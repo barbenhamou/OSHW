@@ -19,7 +19,7 @@ class UnBoundedBuffer {
         void insert(string s);
         string remove();
         int getCount();
-        //void print();
+        void print();
 };
 
 
