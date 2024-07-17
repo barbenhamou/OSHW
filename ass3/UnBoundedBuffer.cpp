@@ -1,37 +1,34 @@
-#include <semaphore>
-#include <string>
-#include <queue>
+#include "UnBoundedBuffer.h"
 
 using namespace std;
 
-class UnBoundedBuffer {
-    private:
-        binary_semaphore mutex;
-        queue<string> buffer;
-    
-    public:
-        UnBoundedBuffer() : mutex(1) {}
+UnBoundedBuffer::UnBoundedBuffer() : mutex(1), count(0) {}
 
-        void insert(string s) {
-            mutex.acquire();
+void UnBoundedBuffer::insert(string s) {
+    mutex.acquire();
 
-            buffer.push(s);
+    buffer.push(s);
+    count++;
 
-            mutex.release();
-        }
+    mutex.release();
+}
 
-        string remove() {
-            mutex.acquire();
+string UnBoundedBuffer::remove() {
+    mutex.acquire();
 
-            string temp = "";
+    string temp = "";
 
-            if (!buffer.empty()) {
-                temp = buffer.front();
-                buffer.pop();
-            }
+    if (!buffer.empty()) {
+        temp = buffer.front();
+        buffer.pop();
+        count--;
+    }
 
-            mutex.release();
+    mutex.release();
 
-            return temp;
-        }
-};
+    return temp;
+}
+
+int UnBoundedBuffer::getCount() {
+    return this->count;
+}
