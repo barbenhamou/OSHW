@@ -4,6 +4,7 @@
 #include <semaphore.h>
 #include <string>
 #include <queue>
+#include <iostream>
 
 using namespace std;
 
@@ -18,6 +19,7 @@ class UnBoundedBuffer {
         void insert(string s);
         string remove();
         int getCount();
+        //void print();
 };
 
 

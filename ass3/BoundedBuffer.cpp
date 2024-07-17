@@ -3,7 +3,7 @@
 using namespace std;
 
 BoundedBuffer::BoundedBuffer(int size) : buffer(size), buffer_size(size), next_in(0), next_out(0), count(0) {
-        sem_init(&mutex, 0, 0);
+        sem_init(&mutex, 0, 1);
         sem_init(&empty, 0, size);
         sem_init(&full, 0, 0);
     } 

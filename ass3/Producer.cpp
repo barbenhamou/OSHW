@@ -47,6 +47,8 @@ void Producer::produce(BoundedBuffer* buffer) {
     }
 
     buffer->insert("DONE");
+
+    cout << to_string(this->id) << " Done\n";
 }
 
 int Producer::getId() {

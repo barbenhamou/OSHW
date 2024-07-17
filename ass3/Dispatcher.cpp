@@ -35,6 +35,8 @@ void Dispatcher::dispatch(BoundedBuffer* producerBuffers, UnBoundedBuffer *sport
         }
     }
 
+    cout << "Dispatcher done\n";
+
     if (amountDone == this->numProducers) {
         sportsBuffer->insert("DONE");
         newsBuffer->insert("DONE");

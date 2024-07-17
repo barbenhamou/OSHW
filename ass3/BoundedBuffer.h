@@ -4,6 +4,7 @@
 #include <semaphore.h>
 #include <string>
 #include <fcntl.h>
+#include <iostream>
 #include <vector>
 
 using namespace std;
