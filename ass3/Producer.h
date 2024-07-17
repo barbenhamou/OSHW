@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#include "BoundedBuffer.h"
+
 class Producer {
     public:
         static int SPORTS_COUNTER;
@@ -13,11 +15,11 @@ class Producer {
 
     private:
         int id;
-        string type;
-        int j;
-        int size;
+        int msgCount;
+        BoundedBuffer* buffer;
     
     public:
-        Producer(int id, int size);
+        Producer(int id, int msgCount, BoundedBuffer* buffer);
         string buildString();
+        void produce();
 };
