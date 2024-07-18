@@ -19,50 +19,11 @@ UnBoundedBuffer newsQueue;
 UnBoundedBuffer weatherQueue;
 UnBoundedBuffer screenBuffer;
 
-
-vector<vector<int>> analyzeFile(const char* filename) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        if (file.bad()) {
-            cout << "bad file\n";
-        }
-
-
-        cout << strerror(errno) << "\n";
-
-        return {}; // Return an empty vector on failure
-    }
-
-    int id, msgs, size;
-    vector<vector<int>> ret;
-    string line;
-
-    while (getline(file, line)) {
-        if (line.find("Co-Editor") != string::npos) {
-            continue;
-        }
-
-        if (line.find("PRODUCER") != string::npos) {
-            line.erase(0, line.find(" ") + 1);
-            id = stoi(line);
-
-            getline(file, line);
-            msgs = stoi(line);
-
-            getline(file, line);
-            line.erase(0, line.find(" = ") + 3);
-            size = stoi(line);
-
-            ret.push_back({id, msgs, size});
-        }
-    }
-
-    return ret;
-}
+int j;
 
 void* producerThreadFunction(void *arg) {
     Producer* producer = (Producer*)arg;
-    producer->produce(&producerBuffers[producer->getId() - 1]);
+    producer->produce(&producerBuffers[j]);
     return nullptr;
 }
 
@@ -108,7 +69,7 @@ int main(int argc, char* argv[]) {
 
         cout << strerror(errno) << "\n";
 
-        return {}; // Return an empty vector on failure
+        return 1; // Return an empty vector on failure
     }
 
     int id, msgs, size;
@@ -134,7 +95,7 @@ int main(int argc, char* argv[]) {
             ret.push_back({id, msgs, size});
         }
     }
-    
+
     producerBuffers = (BoundedBuffer*)malloc(ret.size() * sizeof(BoundedBuffer));
     producers = (Producer*)malloc(ret.size() * sizeof(Producer));
 
@@ -156,15 +117,14 @@ int main(int argc, char* argv[]) {
         producers[i] = Producer(id1, count1);
     }
 
-
     Dispatcher dispatcher(ret.size());
     CoEditor sportsEditor;
     CoEditor newsEditor;
     CoEditor weatherEditor;
     ScreenManager screenManager;
 
-    for (int i = 0; i < ret.size(); ++i) {
-        pthread_create(&producerHandles[i], nullptr, producerThreadFunction, &producers[i]);
+    for (j = 0; j < ret.size(); ++j) {
+        pthread_create(&producerHandles[j], nullptr, producerThreadFunction, &producers[j]);
         this_thread::sleep_for(chrono::milliseconds(1));
 
     }

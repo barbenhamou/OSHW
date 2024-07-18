@@ -4,7 +4,7 @@
 make
 
 # Array of test configurations
-declare -a configs=("config1.txt" "config2.txt" "config3.txt") # Add more configuration names as needed
+declare -a configs=("config1" "config2" "config3") # Add more configuration names as needed
 
 # Function to generate a configuration file
 generate_config() {
@@ -12,16 +12,13 @@ generate_config() {
     local num_producers=$2
     local total_products=0
 
-    c=1
-
     for ((i=1; i<=num_producers; i++)); do
         local num_products=$((RANDOM % 20 + 1))
         local queue_size=$((RANDOM % 10 + 1))
         total_products=$((total_products + num_products))
 
         # Append producer information to the file
-        echo -e "PRODUCER $c\n$num_products\nqueue size = $queue_size\n" > "$filename"
-        ((c++))
+        echo -e "PRODUCER $i\n$num_products\nqueue size = $queue_size\n" >> "$filename"
     done
 
     # Co-Editor queue size (randomly chosen for demonstration)
@@ -46,7 +43,7 @@ for config in "${configs[@]}"; do
     # Check if the program entered a deadlock
     if [ "$exit_status" -eq 124 ]; then
         echo "Test $config FAILED: Program entered a deadlock."
-        #rm "$config"
+        rm "$config"
         exit 1
     fi
     # Verify the output
@@ -60,7 +57,7 @@ for config in "${configs[@]}"; do
     fi
 
     # Clean up
-    # rm output.txt
-    # rm "$config"
+    rm output.txt
+    rm "$config"
 done
 make clean
