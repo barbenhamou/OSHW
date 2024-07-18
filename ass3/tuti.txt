@@ -1,0 +1,37 @@
+PRODUCER 1
+10
+queue size = 5
+
+PRODUCER 2
+15
+queue size = 7
+
+PRODUCER 3
+20
+queue size = 10
+
+PRODUCER 4
+12
+queue size = 6
+
+PRODUCER 5
+18
+queue size = 8
+
+PRODUCER 6
+100
+queue size = 8
+
+PRODUCER 7
+5
+queue size = 8
+
+PRODUCER 8
+4
+queue size = 6
+
+PRODUCER 9
+331
+queue size = 123
+
+

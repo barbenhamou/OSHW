@@ -2,7 +2,7 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -W -g
+CXXFLAGS = -W -g -std=c++20
 
 # Source files
 SRCS = BoundedBuffer.cpp \

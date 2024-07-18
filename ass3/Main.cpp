@@ -1,10 +1,7 @@
 #include "UnBoundedBuffer.h"
 #include <iostream>
 #include <chrono>
-#include <vector>
-#include <tuple>
 #include <fstream>
-#include <sstream>
 #include <pthread.h>
 #include "BoundedBuffer.h"
 #include "Producer.h"
@@ -13,7 +10,7 @@
 #include "ScreenManager.h"
 
 using namespace std;
-    
+
 BoundedBuffer* producerBuffers;
 Producer* producers;
 
@@ -22,9 +19,9 @@ UnBoundedBuffer newsQueue;
 UnBoundedBuffer weatherQueue;
 UnBoundedBuffer screenBuffer;
 
-vector<tuple<int, int, int>> analyzeFile(const char* filename) {
-    ifstream file;
-    file.open(filename);
+
+vector<vector<int>> analyzeFile(const char* filename) {
+    ifstream file(filename);
     if (!file.is_open()) {
         if (file.bad()) {
             cout << "bad file\n";
@@ -37,7 +34,7 @@ vector<tuple<int, int, int>> analyzeFile(const char* filename) {
     }
 
     int id, msgs, size;
-    vector<tuple<int, int, int>> ret;
+    vector<vector<int>> ret;
     string line;
 
     while (getline(file, line)) {
@@ -56,7 +53,7 @@ vector<tuple<int, int, int>> analyzeFile(const char* filename) {
             line.erase(0, line.find(" = ") + 3);
             size = stoi(line);
 
-            ret.emplace_back(id, msgs, size);
+            ret.push_back({id, msgs, size});
         }
     }
 
@@ -100,14 +97,48 @@ void* screenManagerThreadFunction(void *arg) {
     return nullptr;
 }
  
-int main(int argc, const char* argv[]) {
-    vector<tuple<int, int, int>> lists = analyzeFile(argv[1]);
+int main(int argc, char* argv[]) {
 
-    producerBuffers = (BoundedBuffer*)malloc(lists.size() * sizeof(BoundedBuffer));
+    ifstream file(argv[1]);
+    if (!file.is_open()) {
+        if (file.bad()) {
+            cout << "bad file\n";
+        }
 
-    producers = (Producer*)malloc(lists.size() * sizeof(Producer));
 
-    vector<pthread_t> producerHandles(lists.size());
+        cout << strerror(errno) << "\n";
+
+        return {}; // Return an empty vector on failure
+    }
+
+    int id, msgs, size;
+    vector<vector<int>> ret;
+    string line;
+
+    while (getline(file, line)) {
+        if (line.find("Co-Editor") != string::npos) {
+            continue;
+        }
+
+        if (line.find("PRODUCER") != string::npos) {
+            line.erase(0, line.find(" ") + 1);
+            id = stoi(line);
+
+            getline(file, line);
+            msgs = stoi(line);
+
+            getline(file, line);
+            line.erase(0, line.find(" = ") + 3);
+            size = stoi(line);
+
+            ret.push_back({id, msgs, size});
+        }
+    }
+    
+    producerBuffers = (BoundedBuffer*)malloc(ret.size() * sizeof(BoundedBuffer));
+    producers = (Producer*)malloc(ret.size() * sizeof(Producer));
+
+    vector<pthread_t> producerHandles(ret.size());
 
     pthread_t dispatcherHandle;
 
@@ -115,23 +146,32 @@ int main(int argc, const char* argv[]) {
 
     pthread_t screenManagerHandle;
 
-    for (int i = 0; i < lists.size(); ++i) {
-        producerBuffers[i] = BoundedBuffer(get<2>(lists[i]));
-        producers[i] = Producer(get<0>(lists[i]), get<1>(lists[i]));
+    int id1, size1, count1;
+
+    for (int i = 0; i < ret.size(); ++i) {
+        id1 = ret[i][0];
+        size1 = ret[i][2];
+        count1 = ret[i][1];
+        producerBuffers[i] = BoundedBuffer(size1);
+        producers[i] = Producer(id1, count1);
     }
 
-    Dispatcher dispatcher(lists.size());
+
+    Dispatcher dispatcher(ret.size());
     CoEditor sportsEditor;
     CoEditor newsEditor;
     CoEditor weatherEditor;
     ScreenManager screenManager;
 
-    for (int i = 0; i < lists.size(); ++i) {
+    for (int i = 0; i < ret.size(); ++i) {
         pthread_create(&producerHandles[i], nullptr, producerThreadFunction, &producers[i]);
         this_thread::sleep_for(chrono::milliseconds(1));
+
     }
 
     pthread_create(&dispatcherHandle, nullptr, dispatcherThreadFunction, &dispatcher);
+
+
     pthread_create(&sportsEditorHandle, nullptr, sportsCoEditorThreadFunction, &sportsEditor);
     pthread_create(&newsEditorHandle, nullptr, newsCoEditorThreadFunction, &newsEditor);
     pthread_create(&weatherEditorHandle, nullptr, weatherCoEditorThreadFunction, &weatherEditor);
