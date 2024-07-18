@@ -25,7 +25,7 @@ SRCS = BoundedBuffer.cpp \
 OBJS = $(SRCS:.cpp=.o)
 
 # Executable name
-EXEC = program
+EXEC = ex3.out
 
 # Default target
 all: $(EXEC)

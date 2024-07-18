@@ -1,7 +1,10 @@
 #include "UnBoundedBuffer.h"
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <tuple>
 #include <fstream>
+#include <sstream>
 #include <pthread.h>
 #include "BoundedBuffer.h"
 #include "Producer.h"
@@ -10,20 +13,59 @@
 #include "ScreenManager.h"
 
 using namespace std;
-
-const int numProducers = 3;
     
-BoundedBuffer* producerBuffers = (BoundedBuffer*)malloc(numProducers * sizeof(BoundedBuffer));
-Producer* producers = (Producer*)malloc(numProducers * sizeof(Producer));
+BoundedBuffer* producerBuffers;
+Producer* producers;
 
 UnBoundedBuffer sportsQueue;
 UnBoundedBuffer newsQueue;
 UnBoundedBuffer weatherQueue;
 UnBoundedBuffer screenBuffer;
 
+vector<tuple<int, int, int>> analyzeFile(const char* filename) {
+    ifstream file;
+    file.open(filename);
+    if (!file.is_open()) {
+        if (file.bad()) {
+            cout << "bad file\n";
+        }
+
+
+        cout << strerror(errno) << "\n";
+
+        return {}; // Return an empty vector on failure
+    }
+
+    int id, msgs, size;
+    vector<tuple<int, int, int>> ret;
+    string line;
+
+    while (getline(file, line)) {
+        if (line.find("Co-Editor") != string::npos) {
+            continue;
+        }
+
+        if (line.find("PRODUCER") != string::npos) {
+            line.erase(0, line.find(" ") + 1);
+            id = stoi(line);
+
+            getline(file, line);
+            msgs = stoi(line);
+
+            getline(file, line);
+            line.erase(0, line.find(" = ") + 3);
+            size = stoi(line);
+
+            ret.emplace_back(id, msgs, size);
+        }
+    }
+
+    return ret;
+}
+
 void* producerThreadFunction(void *arg) {
     Producer* producer = (Producer*)arg;
-    producer->produce(&producerBuffers[producer->getId()]);
+    producer->produce(&producerBuffers[producer->getId() - 1]);
     return nullptr;
 }
 
@@ -58,12 +100,14 @@ void* screenManagerThreadFunction(void *arg) {
     return nullptr;
 }
  
-int main() {
-    int producerIds[3] = {0, 1, 2};
-    int msgsCount[3] = {3, 112, 987};
-    int queueSizes[3] = {5, 5, 30};
+int main(int argc, const char* argv[]) {
+    vector<tuple<int, int, int>> lists = analyzeFile(argv[1]);
 
-    vector<pthread_t> producerHandles(3);
+    producerBuffers = (BoundedBuffer*)malloc(lists.size() * sizeof(BoundedBuffer));
+
+    producers = (Producer*)malloc(lists.size() * sizeof(Producer));
+
+    vector<pthread_t> producerHandles(lists.size());
 
     pthread_t dispatcherHandle;
 
@@ -71,26 +115,23 @@ int main() {
 
     pthread_t screenManagerHandle;
 
-    for (int i = 0; i < 3; ++i) {
-        producerBuffers[i] = BoundedBuffer(queueSizes[i]);
-        producers[i] = Producer(producerIds[i], msgsCount[i]);
+    for (int i = 0; i < lists.size(); ++i) {
+        producerBuffers[i] = BoundedBuffer(get<2>(lists[i]));
+        producers[i] = Producer(get<0>(lists[i]), get<1>(lists[i]));
     }
 
-    Dispatcher dispatcher(3);
+    Dispatcher dispatcher(lists.size());
     CoEditor sportsEditor;
     CoEditor newsEditor;
     CoEditor weatherEditor;
     ScreenManager screenManager;
 
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < lists.size(); ++i) {
         pthread_create(&producerHandles[i], nullptr, producerThreadFunction, &producers[i]);
         this_thread::sleep_for(chrono::milliseconds(1));
-
     }
 
     pthread_create(&dispatcherHandle, nullptr, dispatcherThreadFunction, &dispatcher);
-
-
     pthread_create(&sportsEditorHandle, nullptr, sportsCoEditorThreadFunction, &sportsEditor);
     pthread_create(&newsEditorHandle, nullptr, newsCoEditorThreadFunction, &newsEditor);
     pthread_create(&weatherEditorHandle, nullptr, weatherCoEditorThreadFunction, &weatherEditor);
